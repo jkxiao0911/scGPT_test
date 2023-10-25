@@ -167,7 +167,9 @@ class Preprocessor:
                 flavor=self.hvg_flavor,
                 subset=True,
             )
-
+        sums = adata.X.sum(axis=1)
+        rows_to_delete = sums == 0
+        adata = adata[~rows_to_delete]
         # step 6: binning
         if self.binning:
             logger.info("Binning data ...")
@@ -196,6 +198,7 @@ class Preprocessor:
                 bin_edges.append(np.concatenate([[0], bins]))
             adata.layers[self.result_binned_key] = np.stack(binned_rows)
             adata.obsm["bin_edges"] = np.stack(bin_edges)
+        return adata
 
     def check_logged(self, adata: AnnData, obs_key: Optional[str] = None) -> bool:
         """
